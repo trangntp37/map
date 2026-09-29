@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - run: pip install pandas
+      - run: pip install pandas h3
 
       - name: Dựng data.json (tự kiểm tra tổng đơn khớp CSV)
         run: python scripts/build_data.py data_14d.csv data.json
