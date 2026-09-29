@@ -1,0 +1,35 @@
+# Tự dựng data.json mỗi khi data_14d.csv được đẩy lên repo
+name: Build data.json
+
+on:
+  push:
+    paths:
+      - 'data_14d.csv'
+      - 'scripts/build_data.py'
+  workflow_dispatch:        # cho phép bấm chạy tay trong tab Actions
+
+permissions:
+  contents: write           # để bot commit data.json
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install pandas
+
+      - name: Dựng data.json (tự kiểm tra tổng đơn khớp CSV)
+        run: python scripts/build_data.py data_14d.csv data.json
+
+      - name: Commit data.json nếu có thay đổi
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --cached --quiet || git commit -m "Cập nhật data.json từ data_14d.csv"
+          git push
