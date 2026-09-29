@@ -704,83 +704,46 @@ button,select{font:inherit;color:inherit}
 #gate button .n{display:block;font-weight:400;font-size:12px;color:var(--ink-3);margin-top:2px}
 @media (max-width:480px){#gate .glist{grid-template-columns:1fr}}
 
-.app{display:grid;grid-template-columns:400px 1fr;grid-template-rows:100%;height:100%}
-.side{display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--paper);min-height:0}
-.side-scroll{overflow:auto;flex:1;min-height:0}
-.map-wrap{position:relative;min-height:0}
+/* ---- app: bản đồ toàn màn hình, tối ưu cho điện thoại ---- */
+.app{position:fixed;inset:0}
 #map{position:absolute;inset:0;background:#dfe6ee}
+.leaflet-container{font-family:inherit;font-size:13px}
 
-.brand{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:16px 18px 10px}
-.brand-l{display:flex;align-items:center;gap:10px}
-.brand .dot{width:12px;height:12px;border-radius:50%;background:var(--aha);box-shadow:0 0 0 4px var(--aha-tint);flex:none;margin-top:5px}
-.brand h1{font-size:17px;font-weight:700;margin:0;letter-spacing:-.01em}
-.switch-prov{border:none;background:none;color:var(--aha-deep);font-size:12.5px;cursor:pointer;text-decoration:underline;white-space:nowrap;padding:4px 0}
+.card{position:absolute;z-index:600;left:8px;right:8px;max-width:420px;background:var(--paper);color:var(--ink);border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.panel{top:calc(env(safe-area-inset-top,0px) + 8px);padding:8px 10px 10px}
+.hours{bottom:calc(env(safe-area-inset-bottom,0px) + 22px);padding:4px 10px 8px}
 
-.filters{padding:6px 18px 12px;display:grid;grid-template-columns:1fr;gap:8px}
-.filters label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink-3)}
-.filters select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper-2);font-size:13.5px;min-width:0}
-.filters select:focus,button:focus-visible{outline:2px solid var(--aha);outline-offset:1px}
-.reset{grid-column:1/-1;justify-self:start;border:none;background:none;color:var(--aha-deep);font-size:13px;padding:2px 0;cursor:pointer;text-decoration:underline}
+.p-head{display:flex;align-items:center;gap:8px;min-height:40px}
+.p-head .dot{width:10px;height:10px;border-radius:50%;background:var(--aha);box-shadow:0 0 0 4px var(--aha-tint);flex:none;margin:0 2px}
+.p-head h1{flex:1;min-width:0;font-size:16px;font-weight:700;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{border:none;background:var(--paper-2);color:var(--ink);border-radius:10px;min-height:36px;padding:0 12px;font-size:14px;cursor:pointer;white-space:nowrap}
+.btn.icon{min-width:40px;padding:0;font-size:16px;line-height:1}
+.btn:focus-visible,select:focus-visible{outline:2px solid var(--aha);outline-offset:1px}
 
-.verdict{margin:0 18px 14px;padding:14px 16px;border-radius:var(--r);background:var(--aha-tint);border-left:4px solid var(--aha)}
-.verdict .n{font-size:13px;color:var(--ink-2);margin-bottom:6px}
-.verdict p{margin:0;font-size:15.5px;line-height:1.5}
-.verdict p b{font-weight:700}
+.p-body{display:grid;gap:8px;margin-top:6px}
+.card.min .p-body{display:none}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.filters select{width:100%;min-width:0;min-height:42px;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:var(--paper-2);font-size:16px}
+.verdict{font-size:14px;line-height:1.45}
+.verdict b{font-weight:700}
+.p-foot{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink-3)}
+.p-foot .ramp{flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg,#22a35a,#e6b800,#ff8a2a,#e0281a)}
+.reset{border:none;background:none;color:var(--aha-deep);font-size:13px;padding:6px 0;cursor:pointer;text-decoration:underline;justify-self:start}
+.reset[hidden]{display:none}
 
-section.block{padding:10px 18px 14px;border-top:1px solid var(--line)}
-section.block h2{font-size:14px;font-weight:600;margin:0 0 8px;color:var(--ink-2)}
-section.block h2 span{font-weight:400;color:var(--ink-3)}
-
-.rank{list-style:none;margin:0;padding:0}
-.rank li{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:6px 0;cursor:pointer;border-radius:6px}
-.rank li:hover{background:var(--paper-2)}
-.rank .name{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rank .sub{font-size:11.5px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rank .bar{grid-column:1/-1;height:4px;border-radius:2px;background:var(--paper-2);position:relative;overflow:hidden;margin-top:-2px}
-.rank .bar i{position:absolute;inset:0 auto 0 0;background:var(--aha);border-radius:2px}
-.rank .pct{font-weight:700;font-variant-numeric:tabular-nums;font-size:13px;padding:1px 6px;border-radius:5px}
-
-.grid{display:grid;grid-template-columns:34px repeat(24,1fr);gap:2px;font-size:10px;color:var(--ink-3)}
-.grid .lab{display:flex;align-items:center}
-.grid .hl{text-align:center;transform:translateY(1px)}
-.grid .cell{aspect-ratio:1;border-radius:2px;background:var(--paper-2);position:relative}
-.grid .cell:hover::after{content:attr(data-t);position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:3px 6px;border-radius:4px;white-space:nowrap;font-size:11px;z-index:5}
-.legend{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-3);margin-top:8px}
-.legend .sw{flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--paper-2),#ffe8e5,var(--bad))}
-
-.hbars{display:flex;align-items:flex-end;gap:2px;height:64px;margin-top:6px}
+.h-head{display:flex;align-items:center;justify-content:space-between;min-height:40px;width:100%;border:none;background:none;padding:0;font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer;text-align:left}
+.h-head .chev{color:var(--ink-3);font-size:14px}
+.h-head small{font-weight:400;color:var(--ink-3);font-size:12px}
+.card.min .h-body{display:none}
+.hbars{display:flex;align-items:flex-end;gap:2px;height:56px;margin-top:2px}
 .hbars i{flex:1;background:var(--bad);border-radius:2px 2px 0 0;opacity:.85;min-height:1px}
 .hbars-x{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-3);margin-top:3px}
 
-.map-ctl{position:absolute;top:12px;right:12px;z-index:500;display:flex;gap:6px;flex-direction:column;align-items:flex-end}
-.map-ctl .chip{border:1px solid var(--line);background:var(--paper);box-shadow:0 1px 4px rgba(0,0,0,.18);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:12.5px;cursor:pointer}
-.map-ctl .chip.on{background:var(--aha);border-color:var(--aha);color:#fff;font-weight:600}
-.stamp{position:absolute;left:12px;bottom:12px;z-index:500;background:var(--paper);padding:6px 10px;border-radius:8px;font-size:11.5px;color:var(--ink-3);box-shadow:0 1px 4px rgba(0,0,0,.15)}
-.leaflet-container{font-family:inherit;font-size:13px}
-.map-legend{background:var(--paper);color:var(--ink-2);padding:8px 10px;border-radius:8px;font-size:11.5px;line-height:1.6;box-shadow:0 1px 4px rgba(0,0,0,.15)}
-.map-legend .t{font-weight:600;color:var(--ink);margin-bottom:2px}
-.map-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;border:1.5px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
-.map-legend .m{color:var(--ink-3);font-size:11px;margin-top:2px}
-.map-legend .ramp{width:150px;height:9px;border-radius:5px;margin:4px 0 1px;background:linear-gradient(90deg,#22a35a,#e6b800,#ff8a2a,#e0281a)}
-.map-legend .rl{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3)}
-.rank .lvl{font-weight:600;font-size:12px;padding:1px 8px;border-radius:5px;white-space:nowrap}
 .leaflet-popup-content{margin:12px 14px;line-height:1.45;color:#1c2430}
 .leaflet-popup-content b{font-size:14px}
 .leaflet-popup-content .m{color:#6b7280;font-size:12px}
-.store-lbl{background:none;border:none;box-shadow:none;font-weight:700;font-size:11px;color:#fff;text-shadow:0 0 3px rgba(0,0,0,.7),0 0 3px rgba(0,0,0,.7);white-space:nowrap}
-
-@media (max-width:860px){
-  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 52vh auto;height:auto;min-height:100%;overflow-x:hidden}
-  .side{border-right:none;display:contents}
-  .side-scroll{display:contents}
-  .top,.insights{min-width:0;max-width:100vw}
-  .top{order:1}
-  .map-wrap{order:2;height:52vh;position:relative}
-  #map{position:absolute}
-  .insights{order:3}
-  .grid{grid-template-columns:28px repeat(24,minmax(0,1fr))}
-}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.leaflet-control-attribution{font-size:10px}
+@media (min-width:700px){.card{left:12px;right:auto;width:380px}.panel{top:12px}.hours{bottom:26px}}
 </style>
 </head>
 <body>
@@ -793,50 +756,33 @@ section.block h2 span{font-weight:400;color:var(--ink-3)}
 </div>
 
 <div class="app" id="app" style="display:none">
-  <aside class="side">
-    <div class="side-scroll">
-      <div class="top">
-        <div class="brand">
-          <div class="brand-l"><span class="dot"></span><h1 id="title">Bản đồ đơn khu vực</h1></div>
-          <button class="switch-prov" id="switch-prov">Đổi khu vực</button>
-        </div>
-        <div class="filters" id="filters">
-          <label>Phường / xã<select id="f-ward"><option value="">Tất cả</option></select></label>
-          <button class="reset" id="reset">Bỏ hết bộ lọc</button>
-        </div>
-        <div class="verdict" id="verdict"></div>
-      </div>
+  <div id="map" role="img" aria-label="Bản đồ lưới hex đơn bị bỏ lỡ"></div>
 
-      <div class="insights">
-        <section class="block">
-          <h2>Đơn bị bỏ lỡ theo giờ trong tuần</h2>
-          <div class="grid" id="grid"></div>
-          <div class="legend">ít<span class="sw"></span>nhiều đơn bị bỏ lỡ</div>
-        </section>
-        <section class="block">
-          <h2>Đơn bị bỏ lỡ theo giờ trong ngày</h2>
-          <div class="hbars" id="hbars"></div>
-          <div class="hbars-x"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span></div>
-        </section>
-        <section class="block">
-          <h2>Ô hex thiếu xế nhất <span>· bấm để tới</span></h2>
-          <ol class="rank" id="r-store"></ol>
-        </section>
-        <section class="block">
-          <h2>Phường / xã thiếu xế nhất <span>· bấm để lọc</span></h2>
-          <ol class="rank" id="r-ward"></ol>
-        </section>
+  <div class="card panel" id="panel">
+    <div class="p-head">
+      <span class="dot"></span>
+      <h1 id="title">Bản đồ đơn khu vực</h1>
+      <button class="btn" id="switch-prov">Đổi</button>
+      <button class="btn icon" id="t-panel" aria-label="Thu gọn / mở rộng">▴</button>
+    </div>
+    <div class="p-body">
+      <div class="filters">
+        <select id="f-ward" aria-label="Phường / xã"><option value="">Tất cả phường</option></select>
+        <select id="f-street" aria-label="Đường"><option value="">Tất cả đường</option></select>
       </div>
+      <button class="reset" id="reset" hidden>Bỏ bộ lọc</button>
+      <div class="verdict" id="verdict"></div>
+      <div class="p-foot"><span>Đủ xế</span><span class="ramp"></span><span>Thiếu nhiều</span></div>
     </div>
-  </aside>
+  </div>
 
-  <main class="map-wrap">
-    <div id="map" role="img" aria-label="Bản đồ lưới hex đơn bị bỏ lỡ"></div>
-    <div class="map-ctl">
-      <button class="chip on" id="t-heat">Lưới hex</button>
+  <div class="card hours" id="hours">
+    <button class="h-head" id="t-hours"><span>Giờ hay bị bỏ lỡ <small id="stamp"></small></span><span class="chev" id="hours-chev">▴</span></button>
+    <div class="h-body">
+      <div class="hbars" id="hbars"></div>
+      <div class="hbars-x"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span></div>
     </div>
-    <div class="stamp" id="stamp"></div>
-  </main>
+  </div>
 </div>
 
 <script>/* @preserve
@@ -864,7 +810,7 @@ L.HeatLayer=(L.Layer?L.Layer:L.Class).extend({initialize:function(t,i){this._lat
 <script>
 // Nguồn dữ liệu: để trống thì dùng dữ liệu nhúng; điền URL JSON public để tự cập nhật hằng ngày.
 const DATA_URL = "./data.json";
-const RAW = /*__DATA__*/{F:["c","rg","w","hx"],stores:[],cells:[]};
+const RAW = /*__DATA__*/{F:["c","rg","w","st","hx"],stores:[],cells:[]};
 </script>
 <script>
 (async function(){
@@ -882,11 +828,11 @@ const PROVINCE_NAME = {
 
 let payload = RAW;
 if(DATA_URL){ try{ const r=await fetch(DATA_URL,{cache:'no-cache'}); if(!r.ok) throw new Error('HTTP '+r.status); payload=await r.json(); }catch(e){ console.warn('Không tải được DATA_URL, dùng dữ liệu nhúng',e); } }
-const STORES = payload.stores; // mỗi dòng = 1 ô hex trong 1 phường: [c,rg,w,hx]
+const STORES = payload.stores; // mỗi dòng = 1 ô hex × phường × đường: [c,rg,w,st,hx]
 const CELLS  = payload.cells;  // [sid,h,d,n,ac]
 const SF = payload.F;
 const idx=(f)=>SF.indexOf(f);
-const IC=idx('c'),IW=idx('w');
+const IC=idx('c'),IW=idx('w'),IST=idx('st'); // IST=-1 nếu data chưa có tên đường
 const IHX=idx('hx'); // mã H3 res 8, tính sẵn trong build_data.py
 if(IHX<0) console.warn('data.json chưa có trường "hx" trong F: lưới hex sẽ trống');
 STORES.forEach((s,i)=>s._sid=i);
@@ -922,21 +868,22 @@ $('#gsearch').oninput=e=>{
 };
 
 let PROV='';
-let map, heat, showHeat=true;
+let map, heat;
+const isSmall=()=>window.matchMedia('(max-width:699px)').matches;
 
 function initMap(){
   if(map) return;
-  map=L.map('map',{zoomControl:true,attributionControl:true}).setView([14.5,107.5],6);
+  const touch=L.Browser.mobile;
+  map=L.map('map',{zoomControl:!touch,attributionControl:true}).setView([14.5,107.5],6);
+  if(!touch) map.zoomControl.setPosition('bottomright');
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, OpenStreetMap contributors'}).addTo(map);
   heat=L.layerGroup().addTo(map); // lớp lưới hex
-  const hexRenderer=L.canvas({padding:.3}); initMap.hexRenderer=hexRenderer;
-  const lg=L.control({position:'bottomright'});
-  lg.onAdd=()=>{const d=L.DomUtil.create('div','map-legend');d.innerHTML=
-    '<div class="t">Ô hex: đơn bị bỏ lỡ</div>'+
-    '<div class="ramp"></div><div class="rl"><span>Đủ xế</span><span>Thiếu nhiều</span></div>';
-    L.DomEvent.disableClickPropagation(d);return d};
-  lg.addTo(map);
-  $('#t-heat').onclick=e=>{showHeat=!showHeat;e.target.classList.toggle('on',showHeat);render()};
+  initMap.hexRenderer=L.canvas({padding:.3,tolerance:4});
+  // khung nổi không cho kéo/zoom xuyên xuống bản đồ
+  ['#panel','#hours'].forEach(s=>{L.DomEvent.disableClickPropagation($(s));L.DomEvent.disableScrollPropagation($(s));});
+  $('#t-panel').onclick=()=>{const c=$('#panel').classList.toggle('min');$('#t-panel').textContent=c?'▾':'▴';};
+  $('#t-hours').onclick=()=>{const c=$('#hours').classList.toggle('min');$('#hours-chev').textContent=c?'▴':'▾';};
+  if(isSmall()){ $('#hours').classList.add('min'); $('#hours-chev').textContent='▴'; } else { $('#hours-chev').textContent='▾'; }
 }
 
 function choose(code){
@@ -944,113 +891,104 @@ function choose(code){
   try{ localStorage.setItem('hm_province', code); }catch(e){}
   try{ history.replaceState(null,'','?c='+code); }catch(e){}
   $('#gate').style.display='none';
-  $('#app').style.display='grid';
-  $('#title').textContent = 'Bản đồ đơn khu vực ' + (PROVINCE_NAME[code]||code);
+  $('#app').style.display='block';
+  $('#title').textContent = PROVINCE_NAME[code]||code;
   initMap();          // chỉ tạo bản đồ khi .app đã hiển thị (có kích thước thật)
   map.invalidateSize();
   boot();
 }
 $('#switch-prov').onclick=()=>{ $('#app').style.display='none'; $('#gate').style.display='flex'; };
 
-const F={ward:''};
+const F={ward:'',street:''};
 let booted=false;
 function boot(){
   if(!booted){
-    $('#f-ward').onchange=e=>{F.ward=e.target.value;render()};
-    $('#reset').onclick=()=>{F.ward='';render()};
+    $('#f-ward').onchange=e=>{F.ward=e.target.value;F.street='';render()};
+    $('#f-street').onchange=e=>{F.street=e.target.value;render()};
+    $('#reset').onclick=()=>{F.ward='';F.street='';render()};
     booted=true;
   }
-  F.ward='';
+  F.ward=''; F.street='';
   render.geoKey=null;
   render();
 }
 
 function passStore(s){
-  return s[IC]===PROV && (!F.ward||s[IW]===F.ward);
+  return s[IC]===PROV && (!F.ward||s[IW]===F.ward) && (!F.street||s[IST]===F.street);
 }
-const opt=(sel,items,val)=>{const keep=val;sel.innerHTML='<option value="">Tất cả</option>'+items.map(([k,n])=>`<option value="${String(k).replace(/"/g,'&quot;')}">${k}</option>`).join('');sel.value=items.some(i=>i[0]===keep)?keep:'';return sel.value};
-const count=(arr,key)=>{const m=new Map();for(const x of arr){const k=key(x);m.set(k,(m.get(k)||0)+1)}return [...m].sort((a,b)=>b[1]-a[1])};
+const opt=(sel,items,val,all)=>{const keep=val;sel.innerHTML=`<option value="">${all}</option>`+items.map(([k])=>`<option value="${String(k).replace(/"/g,'&quot;')}">${k}</option>`).join('');sel.value=items.some(i=>i[0]===keep)?keep:'';return sel.value};
+// sắp xếp theo số đơn (phổ biến lên đầu), không hiển thị số
+const rankBy=(arr,key)=>{const m=new Map();for(const x of arr){const k=key(x);if(!k)continue;m.set(k,(m.get(k)||0)+x._n)}return [...m].sort((a,b)=>b[1]-a[1])};
 
 function render(){
   if(!PROV) return;
   const bySid=new Map();
   for(const c of CELLS){
     const s=STORES[c[0]]; if(s[IC]!==PROV) continue;
-    let a=bySid.get(c[0]); if(!a){a={n:0,ac:0,h:new Array(24).fill(0),hac:new Array(24).fill(0)};bySid.set(c[0],a)}
-    a.n+=c[3]; a.ac+=c[4]; a.h[c[1]]+=c[3]; a.hac[c[1]]+=c[4];
+    let a=bySid.get(c[0]); if(!a){a={n:0,ac:0,hac:new Array(24).fill(0)};bySid.set(c[0],a)}
+    a.n+=c[3]; a.ac+=c[4]; a.hac[c[1]]+=c[4];
   }
-  const storesInProv = STORES.filter(s=>s[IC]===PROV && bySid.has(s._sid));
-  const wardCount=count(storesInProv,s=>s[IW]);
-  F.ward=opt($('#f-ward'),wardCount,F.ward);
+  const inProv = STORES.filter(s=>s[IC]===PROV && bySid.has(s._sid));
+  inProv.forEach(s=>s._n=bySid.get(s._sid).n);
+  F.ward=opt($('#f-ward'),rankBy(inProv.filter(s=>!F.street||s[IST]===F.street),s=>s[IW]),F.ward,'Tất cả phường');
+  F.street=IST<0?'':opt($('#f-street'),rankBy(inProv.filter(s=>!F.ward||s[IW]===F.ward),s=>s[IST]),F.street,'Tất cả đường');
+  $('#f-street').style.display=IST<0?'none':'';
+  $('.filters').style.gridTemplateColumns=IST<0?'1fr':'';
+  $('#reset').hidden=!(F.ward||F.street);
 
-  const rows = storesInProv.filter(passStore).map(s=>({s,...bySid.get(s._sid)}));
+  const rows = inProv.filter(passStore).map(s=>({s,...bySid.get(s._sid)}));
   const totalOrders=rows.reduce((a,r)=>a+r.n,0), totalAc=rows.reduce((a,r)=>a+r.ac,0);
-  $('#stamp').textContent= IHX<0 ? 'Dữ liệu chưa có mã hex' : `Dữ liệu ${WINDOW_DAYS} ngày gần nhất`;
+  $('#stamp').textContent= IHX<0 ? '· dữ liệu chưa có mã hex' : `· ${WINDOW_DAYS} ngày gần nhất`;
 
-  // lưới hex = số đơn bị bỏ lỡ, cộng theo mã hex của cửa hàng
+  // ---- lưới hex = số đơn bị bỏ lỡ ----
   heat.clearLayers();
   const hexAgg=new Map();
   if(IHX>=0){
     for(const r of rows){const k=r.s[IHX]; if(!k) continue;
-      let a=hexAgg.get(k); if(!a){a={ac:0,hac:new Array(24).fill(0),w:new Map()};hexAgg.set(k,a)}
+      let a=hexAgg.get(k); if(!a){a={ac:0,hac:new Array(24).fill(0),w:new Map(),st:new Map()};hexAgg.set(k,a)}
       a.ac+=r.ac; for(let h=0;h<24;h++) a.hac[h]+=r.hac[h];
-      a.w.set(r.s[IW],(a.w.get(r.s[IW])||0)+r.n);}
+      a.w.set(r.s[IW],(a.w.get(r.s[IW])||0)+r.n);
+      if(IST>=0&&r.s[IST]) a.st.set(r.s[IST],(a.st.get(r.s[IST])||0)+r.n);}
     const lmax=Math.log1p(Math.max(1,...[...hexAgg.values()].map(a=>a.ac)));
     for(const [k,a] of hexAgg){
-      a.t=a.ac?Math.log1p(a.ac)/lmax:0; a.col=rampColor(a.t);
-      a.ward=[...a.w].sort((x,y)=>y[1]-x[1])[0]?.[0]||'—';
-      if(!showHeat) continue;
+      const t=a.ac?Math.log1p(a.ac)/lmax:0, col=rampColor(t);
+      const ward=[...a.w].sort((x,y)=>y[1]-x[1])[0]?.[0]||'—';
+      const streets=[...a.st].sort((x,y)=>y[1]-x[1]).slice(0,2).map(x=>x[0]).join(' · ');
       let ring; try{ ring=h3.cellToBoundary(k); }catch(e){ continue; }
       const topH=a.hac.map((v,h)=>[v,h]).filter(x=>x[0]>0).sort((x,y)=>y[0]-x[0]).slice(0,3).map(x=>x[1]+'h').join(', ');
-      L.polygon(ring,{renderer:initMap.hexRenderer,color:a.col,weight:.6,fillColor:a.col,fillOpacity:.55}).bindPopup(
-        `<b style="color:${a.col}">${hexWord(a.t)}</b><div class="m">${a.ward}</div><div class="m" style="margin-top:4px">Giờ hay bị bỏ lỡ: ${topH||'—'}</div>`).addTo(heat);
+      L.polygon(ring,{renderer:initMap.hexRenderer,color:col,weight:.6,fillColor:col,fillOpacity:.55}).bindPopup(
+        `<b style="color:${col}">${hexWord(t)}</b><div class="m">${ward}</div>${streets?`<div class="m">${streets}</div>`:''}<div class="m" style="margin-top:4px">Giờ hay bị bỏ lỡ: ${topH||'—'}</div>`,{autoPanPaddingTopLeft:[10,($('#panel').offsetHeight||0)+20]}).addTo(heat);
     }
   }
 
-  if(render.geoKey!==F.ward){render.geoKey=F.ward; const pts=rows.map(r=>{try{return h3.cellToLatLng(r.s[IHX])}catch(e){return null}}).filter(Boolean); if(pts.length){map.fitBounds(L.latLngBounds(pts).pad(.15),{maxZoom:15});}}
-
-  // ---- rank lists (top 5, theo tỷ lệ, tối thiểu 5 đơn) ----
-  const badgeOf=(a)=>{const p=pct(a.ac,a.n);return `<span class="lvl" style="background:${rateBg(p)};color:${rateColor(p)}">${rateWord(p)}</span>`};
-  const minN=5;
-  const bigEnough=rows.filter(r=>r.n>=minN);
-  // ô hex thiếu xế nhất: xếp theo số đơn bị bỏ lỡ (cùng thước đo với màu hex)
-  const hexSrc=[...hexAgg].filter(([,a])=>a.ac>0).sort((x,y)=>y[1].ac-x[1].ac);
-  $('#r-store').innerHTML=hexSrc.slice(0,5).map(([k,a])=>`<li data-k="${k}"><div><div class="name">${a.ward}</div></div><span class="lvl" style="background:color-mix(in srgb, ${a.col} 15%, transparent);color:${a.col}">${hexWord(a.t)}</span></li>`).join('');
-  $('#r-store').querySelectorAll('li').forEach(li=>li.onclick=()=>{try{map.flyTo(h3.cellToLatLng(li.dataset.k),15)}catch(e){}});
-
-  const wardAgg=new Map();
-  for(const r of rows){const k=r.s[IW];let a=wardAgg.get(k);if(!a){a={n:0,ac:0};wardAgg.set(k,a)}a.n+=r.n;a.ac+=r.ac}
-  const wardSrc=[...wardAgg].filter(([,a])=>a.n>=minN).sort((a,b)=>pct(b[1].ac,b[1].n)-pct(a[1].ac,a[1].n));
-  $('#r-ward').innerHTML=wardSrc.slice(0,5).map(([name,a])=>`<li data-k="${name.replace(/"/g,'&quot;')}"><div><div class="name">${name}</div></div>${badgeOf(a)}</li>`).join('');
-  $('#r-ward').querySelectorAll('li').forEach(li=>li.onclick=()=>{F.ward=F.ward===li.dataset.k?'':li.dataset.k;render()});
-
-  // ---- lưới giờ x thứ: số đơn bị bỏ lỡ tuyệt đối ----
-  const gac=Array.from({length:8},()=>new Array(24).fill(0));
-  for(const c of CELLS){ const s=STORES[c[0]]; if(!bySid.has(c[0])||!passStore(s))continue; gac[c[2]][c[1]]+=c[4]; }
-  const gacMax=Math.max(1,...gac.flat());
-  let html='<div></div>'+Array.from({length:24},(_,h)=>`<div class="hl">${h%3===0?h:''}</div>`).join('');
-  const DAYS=['','T2','T3','T4','T5','T6','T7','CN'];
-  for(let d=1;d<=7;d++){html+=`<div class="lab">${DAYS[d]}</div>`;for(let h=0;h<24;h++){
-    const ac=gac[d][h]; const t=ac/gacMax;
-    const col = ac===0?'var(--paper-2)':`color-mix(in srgb, var(--bad) ${Math.round(20+80*t)}%, #ffe8e5)`;
-    html+=`<div class="cell" data-t="${DAYS[d]} ${h}h" style="background:${col}"></div>`}}
-  $('#grid').innerHTML=html;
+  // ---- canh bản đồ, chừa chỗ cho 2 khung nổi ----
+  const key=F.ward+'|'+F.street;
+  if(render.geoKey!==key){render.geoKey=key;
+    const pts=rows.map(r=>{try{return h3.cellToLatLng(r.s[IHX])}catch(e){return null}}).filter(Boolean);
+    const top=($('#panel').offsetHeight||0)+16, bot=($('#hours').offsetHeight||0)+30;
+    const side=isSmall()?10:($('#panel').offsetWidth||0)+24;
+    if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(.08),{maxZoom:15,paddingTopLeft:[isSmall()?10:side,top],paddingBottomRight:[10,isSmall()?bot:10]});
+  }
 
   // ---- theo giờ trong ngày ----
   const hac=new Array(24).fill(0);
-  for(const c of CELLS){ const s=STORES[c[0]]; if(!bySid.has(c[0])||!passStore(s))continue; hac[c[1]]+=c[4]; }
+  for(const r of rows) for(let h=0;h<24;h++) hac[h]+=r.hac[h];
   const hacMax=Math.max(1,...hac);
   $('#hbars').innerHTML=hac.map((v,h)=>`<i title="${h}h" style="height:${v/hacMax*100}%"></i>`).join('');
 
-  // ---- verdict ----
+  // ---- câu gợi ý ----
+  const minN=5;
+  const wardAgg=new Map();
+  for(const r of rows){const k=r.s[IW];let a=wardAgg.get(k);if(!a){a={n:0,ac:0};wardAgg.set(k,a)}a.n+=r.n;a.ac+=r.ac}
+  const wardSrc=[...wardAgg].filter(([,a])=>a.n>=minN).sort((a,b)=>pct(b[1].ac,b[1].n)-pct(a[1].ac,a[1].n));
   const v=$('#verdict');
-  if(!rows.length){v.innerHTML='<p>Chưa có dữ liệu cho khu vực này.</p>';}
+  if(!rows.length){v.innerHTML='Chưa có dữ liệu cho khu vực này.';}
   else{
     let best=[0,0];for(let h=0;h<23;h++){const s=hac[h]+hac[h+1];if(s>best[1])best=[h,s]}
     const bestWard=wardSrc[0];
     const overallP=pct(totalAc,totalOrders);
-    v.innerHTML=`<div class="n">Mức thiếu xế chung: <b style="color:${rateColor(overallP)}">${rateWord(overallP)}</b></div>
-    <p>Nên đứng quanh <b>${bestWard?.[0]||'—'}</b> trong khung <b>${best[0]}h–${best[0]+2}h</b>.</p>`;
+    const where=F.ward?'':(bestWard?` quanh <b>${bestWard[0]}</b>`:'');
+    v.innerHTML=`Thiếu xế: <b style="color:${rateColor(overallP)}">${rateWord(overallP)}</b> · Nên đứng${where} khung <b>${best[0]}h–${best[0]+2}h</b>`;
   }
 }
 
@@ -1062,6 +1000,7 @@ if(urlProv && provList.includes(urlProv)) choose(urlProv);
 else if(savedProv && provList.includes(savedProv)) choose(savedProv);
 else { $('#gate').style.display='flex'; }
 })();
+
 </script>
 </body>
 </html>
