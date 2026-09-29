@@ -716,7 +716,7 @@ button,select{font:inherit;color:inherit}
 .brand h1{font-size:17px;font-weight:700;margin:0;letter-spacing:-.01em}
 .switch-prov{border:none;background:none;color:var(--aha-deep);font-size:12.5px;cursor:pointer;text-decoration:underline;white-space:nowrap;padding:4px 0}
 
-.filters{padding:6px 18px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.filters{padding:6px 18px 12px;display:grid;grid-template-columns:1fr;gap:8px}
 .filters label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink-3)}
 .filters select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper-2);font-size:13.5px;min-width:0}
 .filters select:focus,button:focus-visible{outline:2px solid var(--aha);outline-offset:1px}
@@ -802,7 +802,6 @@ section.block h2 span{font-weight:400;color:var(--ink-3)}
         </div>
         <div class="filters" id="filters">
           <label>Phường / xã<select id="f-ward"><option value="">Tất cả</option></select></label>
-          <label>Đường<select id="f-street"><option value="">Tất cả</option></select></label>
           <button class="reset" id="reset">Bỏ hết bộ lọc</button>
         </div>
         <div class="verdict" id="verdict"></div>
@@ -827,19 +826,14 @@ section.block h2 span{font-weight:400;color:var(--ink-3)}
           <h2>Phường / xã thiếu xế nhất <span>· bấm để lọc</span></h2>
           <ol class="rank" id="r-ward"></ol>
         </section>
-        <section class="block">
-          <h2>Tuyến đường thiếu xế nhất</h2>
-          <ol class="rank" id="r-street"></ol>
-        </section>
       </div>
     </div>
   </aside>
 
   <main class="map-wrap">
-    <div id="map" role="img" aria-label="Bản đồ đơn hàng và tỷ lệ thiếu xế"></div>
+    <div id="map" role="img" aria-label="Bản đồ lưới hex đơn bị bỏ lỡ"></div>
     <div class="map-ctl">
       <button class="chip on" id="t-heat">Lưới hex</button>
-      <button class="chip on" id="t-store">Cửa hàng</button>
     </div>
     <div class="stamp" id="stamp"></div>
   </main>
@@ -870,7 +864,7 @@ L.HeatLayer=(L.Layer?L.Layer:L.Class).extend({initialize:function(t,i){this._lat
 <script>
 // Nguồn dữ liệu: để trống thì dùng dữ liệu nhúng; điền URL JSON public để tự cập nhật hằng ngày.
 const DATA_URL = "./data.json";
-const RAW = /*__DATA__*/{F:["c","rg","w","st","b","sl","lat","lng"],stores:[],cells:[]};
+const RAW = /*__DATA__*/{F:["c","rg","w","hx"],stores:[],cells:[]};
 </script>
 <script>
 (async function(){
@@ -888,12 +882,12 @@ const PROVINCE_NAME = {
 
 let payload = RAW;
 if(DATA_URL){ try{ const r=await fetch(DATA_URL,{cache:'no-cache'}); if(!r.ok) throw new Error('HTTP '+r.status); payload=await r.json(); }catch(e){ console.warn('Không tải được DATA_URL, dùng dữ liệu nhúng',e); } }
-const STORES = payload.stores; // [c,rg,w,st,b,sl,lat,lng]
+const STORES = payload.stores; // mỗi dòng = 1 ô hex trong 1 phường: [c,rg,w,hx]
 const CELLS  = payload.cells;  // [sid,h,d,n,ac]
 const SF = payload.F;
 const idx=(f)=>SF.indexOf(f);
-const IC=idx('c'),IW=idx('w'),IST=idx('st'),ISL=idx('sl'),ILAT=idx('lat'),ILNG=idx('lng');
-const IHX=idx('hx'); // mã H3 hex của cửa hàng, lấy từ hệ thống (không tự tính ở trang)
+const IC=idx('c'),IW=idx('w');
+const IHX=idx('hx'); // mã H3 res 8, tính sẵn trong build_data.py
 if(IHX<0) console.warn('data.json chưa có trường "hx" trong F: lưới hex sẽ trống');
 STORES.forEach((s,i)=>s._sid=i);
 
@@ -928,7 +922,7 @@ $('#gsearch').oninput=e=>{
 };
 
 let PROV='';
-let map, heat, storeLayer, showHeat=true, showStore=true;
+let map, heat, showHeat=true;
 
 function initMap(){
   if(map) return;
@@ -936,21 +930,13 @@ function initMap(){
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, OpenStreetMap contributors'}).addTo(map);
   heat=L.layerGroup().addTo(map); // lớp lưới hex
   const hexRenderer=L.canvas({padding:.3}); initMap.hexRenderer=hexRenderer;
-  storeLayer=L.layerGroup().addTo(map);
   const lg=L.control({position:'bottomright'});
   lg.onAdd=()=>{const d=L.DomUtil.create('div','map-legend');d.innerHTML=
     '<div class="t">Ô hex: đơn bị bỏ lỡ</div>'+
-    '<div class="ramp"></div><div class="rl"><span>Đủ xế</span><span>Thiếu nhiều</span></div>'+
-    '<div class="t" style="margin-top:6px">Cửa hàng: mức thiếu xế</div>'+
-    '<div><i style="background:var(--good)"></i>Thấp</div>'+
-    '<div><i style="background:var(--mid)"></i>Vừa</div>'+
-    '<div><i style="background:var(--bad)"></i>Cao</div>'+
-    '<div><i style="background:#9aa4b2"></i>Ít dữ liệu</div>'+
-    '<div class="m">Vòng càng to = càng nhiều đơn</div>';
+    '<div class="ramp"></div><div class="rl"><span>Đủ xế</span><span>Thiếu nhiều</span></div>';
     L.DomEvent.disableClickPropagation(d);return d};
   lg.addTo(map);
   $('#t-heat').onclick=e=>{showHeat=!showHeat;e.target.classList.toggle('on',showHeat);render()};
-  $('#t-store').onclick=e=>{showStore=!showStore;e.target.classList.toggle('on',showStore);render()};
 }
 
 function choose(code){
@@ -966,22 +952,21 @@ function choose(code){
 }
 $('#switch-prov').onclick=()=>{ $('#app').style.display='none'; $('#gate').style.display='flex'; };
 
-const F={ward:'',street:''};
+const F={ward:''};
 let booted=false;
 function boot(){
   if(!booted){
-    $('#f-ward').onchange=e=>{F.ward=e.target.value;F.street='';render()};
-    $('#f-street').onchange=e=>{F.street=e.target.value;render()};
-    $('#reset').onclick=()=>{F.ward='';F.street='';render()};
+    $('#f-ward').onchange=e=>{F.ward=e.target.value;render()};
+    $('#reset').onclick=()=>{F.ward='';render()};
     booted=true;
   }
-  F.ward=''; F.street='';
+  F.ward='';
   render.geoKey=null;
   render();
 }
 
 function passStore(s){
-  return s[IC]===PROV && (!F.ward||s[IW]===F.ward) && (!F.street||s[IST]===F.street);
+  return s[IC]===PROV && (!F.ward||s[IW]===F.ward);
 }
 const opt=(sel,items,val)=>{const keep=val;sel.innerHTML='<option value="">Tất cả</option>'+items.map(([k,n])=>`<option value="${String(k).replace(/"/g,'&quot;')}">${k}</option>`).join('');sel.value=items.some(i=>i[0]===keep)?keep:'';return sel.value};
 const count=(arr,key)=>{const m=new Map();for(const x of arr){const k=key(x);m.set(k,(m.get(k)||0)+1)}return [...m].sort((a,b)=>b[1]-a[1])};
@@ -995,10 +980,8 @@ function render(){
     a.n+=c[3]; a.ac+=c[4]; a.h[c[1]]+=c[3]; a.hac[c[1]]+=c[4];
   }
   const storesInProv = STORES.filter(s=>s[IC]===PROV && bySid.has(s._sid));
-  const wardCount=count(storesInProv.filter(s=>!F.street||s[IST]===F.street),s=>s[IW]);
+  const wardCount=count(storesInProv,s=>s[IW]);
   F.ward=opt($('#f-ward'),wardCount,F.ward);
-  const streetCount=count(storesInProv.filter(s=>(!F.ward||s[IW]===F.ward)&&s[IST]),s=>s[IST]);
-  F.street=opt($('#f-street'),streetCount,F.street);
 
   const rows = storesInProv.filter(passStore).map(s=>({s,...bySid.get(s._sid)}));
   const totalOrders=rows.reduce((a,r)=>a+r.n,0), totalAc=rows.reduce((a,r)=>a+r.ac,0);
@@ -1009,39 +992,22 @@ function render(){
   const hexAgg=new Map();
   if(IHX>=0){
     for(const r of rows){const k=r.s[IHX]; if(!k) continue;
-      let a=hexAgg.get(k); if(!a){a={ac:0,hac:new Array(24).fill(0),w:new Map(),st:new Map()};hexAgg.set(k,a)}
+      let a=hexAgg.get(k); if(!a){a={ac:0,hac:new Array(24).fill(0),w:new Map()};hexAgg.set(k,a)}
       a.ac+=r.ac; for(let h=0;h<24;h++) a.hac[h]+=r.hac[h];
-      a.w.set(r.s[IW],(a.w.get(r.s[IW])||0)+r.n);
-      if(r.s[IST]) a.st.set(r.s[IST],(a.st.get(r.s[IST])||0)+r.n);}
+      a.w.set(r.s[IW],(a.w.get(r.s[IW])||0)+r.n);}
     const lmax=Math.log1p(Math.max(1,...[...hexAgg.values()].map(a=>a.ac)));
     for(const [k,a] of hexAgg){
       a.t=a.ac?Math.log1p(a.ac)/lmax:0; a.col=rampColor(a.t);
       a.ward=[...a.w].sort((x,y)=>y[1]-x[1])[0]?.[0]||'—';
-      a.streets=[...a.st].sort((x,y)=>y[1]-x[1]).slice(0,2).map(x=>x[0]).join(' · ');
       if(!showHeat) continue;
       let ring; try{ ring=h3.cellToBoundary(k); }catch(e){ continue; }
       const topH=a.hac.map((v,h)=>[v,h]).filter(x=>x[0]>0).sort((x,y)=>y[0]-x[0]).slice(0,3).map(x=>x[1]+'h').join(', ');
       L.polygon(ring,{renderer:initMap.hexRenderer,color:a.col,weight:.6,fillColor:a.col,fillOpacity:.55}).bindPopup(
-        `<b style="color:${a.col}">${hexWord(a.t)}</b><div class="m">${a.ward}</div>${a.streets?`<div class="m">${a.streets}</div>`:''}<div class="m" style="margin-top:4px">Giờ hay bị bỏ lỡ: ${topH||'—'}</div>`).addTo(heat);
+        `<b style="color:${a.col}">${hexWord(a.t)}</b><div class="m">${a.ward}</div><div class="m" style="margin-top:4px">Giờ hay bị bỏ lỡ: ${topH||'—'}</div>`).addTo(heat);
     }
   }
 
-  // store markers: màu theo tỷ lệ thiếu xế
-  storeLayer.clearLayers();
-  const maxN=Math.max(1,...rows.map(r=>r.n));
-  const sorted=[...rows].sort((a,b)=>pct(b.ac,b.n)-pct(a.ac,a.n));
-  sorted.forEach((r,i)=>{
-    const s=r.s, p=pct(r.ac,r.n);
-    const rad=6+Math.sqrt(r.n/maxN)*18;
-    const col = r.n<5 && r.ac>0 ? '#9aa4b2' : rateColor(p);
-    const top=r.h.map((v,h)=>[v,h]).sort((a,b)=>b[0]-a[0]).filter(x=>x[0]>0).slice(0,3).map(x=>`${x[1]}h`).join(', ');
-    const badge = r.n<5 && r.ac>0 ? `<span class="m">Ít dữ liệu</span>` : `<b style="color:${rateColor(p)}">Mức thiếu xế: ${rateWord(p)}</b>`;
-    const m=L.circleMarker([s[ILAT],s[ILNG]],{radius:rad,color:'#fff',weight:1.5,fillColor:col,fillOpacity:.88}).bindPopup(
-      `<b>${s[IW]}</b>${s[IST]?`<div class="m">${s[IST]}</div>`:''}<div style="margin-top:6px">${badge}</div><div class="m">Giờ hay đông: ${top||'—'}</div>`);
-    if(showStore) storeLayer.addLayer(m);
-  });
-
-  if(render.geoKey!==F.ward+F.street){render.geoKey=F.ward+F.street; if(rows.length){map.fitBounds(L.latLngBounds(rows.map(r=>[r.s[ILAT],r.s[ILNG]])).pad(.15),{maxZoom:15});}}
+  if(render.geoKey!==F.ward){render.geoKey=F.ward; const pts=rows.map(r=>{try{return h3.cellToLatLng(r.s[IHX])}catch(e){return null}}).filter(Boolean); if(pts.length){map.fitBounds(L.latLngBounds(pts).pad(.15),{maxZoom:15});}}
 
   // ---- rank lists (top 5, theo tỷ lệ, tối thiểu 5 đơn) ----
   const badgeOf=(a)=>{const p=pct(a.ac,a.n);return `<span class="lvl" style="background:${rateBg(p)};color:${rateColor(p)}">${rateWord(p)}</span>`};
@@ -1049,20 +1015,14 @@ function render(){
   const bigEnough=rows.filter(r=>r.n>=minN);
   // ô hex thiếu xế nhất: xếp theo số đơn bị bỏ lỡ (cùng thước đo với màu hex)
   const hexSrc=[...hexAgg].filter(([,a])=>a.ac>0).sort((x,y)=>y[1].ac-x[1].ac);
-  $('#r-store').innerHTML=hexSrc.slice(0,5).map(([k,a])=>`<li data-k="${k}"><div><div class="name">${a.ward}</div><div class="sub">${a.streets||'&nbsp;'}</div></div><span class="lvl" style="background:color-mix(in srgb, ${a.col} 15%, transparent);color:${a.col}">${hexWord(a.t)}</span></li>`).join('');
+  $('#r-store').innerHTML=hexSrc.slice(0,5).map(([k,a])=>`<li data-k="${k}"><div><div class="name">${a.ward}</div></div><span class="lvl" style="background:color-mix(in srgb, ${a.col} 15%, transparent);color:${a.col}">${hexWord(a.t)}</span></li>`).join('');
   $('#r-store').querySelectorAll('li').forEach(li=>li.onclick=()=>{try{map.flyTo(h3.cellToLatLng(li.dataset.k),15)}catch(e){}});
 
   const wardAgg=new Map();
   for(const r of rows){const k=r.s[IW];let a=wardAgg.get(k);if(!a){a={n:0,ac:0};wardAgg.set(k,a)}a.n+=r.n;a.ac+=r.ac}
   const wardSrc=[...wardAgg].filter(([,a])=>a.n>=minN).sort((a,b)=>pct(b[1].ac,b[1].n)-pct(a[1].ac,a[1].n));
   $('#r-ward').innerHTML=wardSrc.slice(0,5).map(([name,a])=>`<li data-k="${name.replace(/"/g,'&quot;')}"><div><div class="name">${name}</div></div>${badgeOf(a)}</li>`).join('');
-  $('#r-ward').querySelectorAll('li').forEach(li=>li.onclick=()=>{F.ward=F.ward===li.dataset.k?'':li.dataset.k;F.street='';render()});
-
-  const stAgg=new Map();
-  for(const r of rows){const k=r.s[IST];if(!k)continue;let a=stAgg.get(k);if(!a){a={n:0,ac:0};stAgg.set(k,a)}a.n+=r.n;a.ac+=r.ac}
-  const stSrc=[...stAgg].filter(([,a])=>a.n>=minN).sort((a,b)=>pct(b[1].ac,b[1].n)-pct(a[1].ac,a[1].n));
-  $('#r-street').innerHTML=stSrc.slice(0,5).map(([name,a])=>`<li data-k="${name.replace(/"/g,'&quot;')}"><div><div class="name">${name}</div></div>${badgeOf(a)}</li>`).join('');
-  $('#r-street').querySelectorAll('li').forEach(li=>li.onclick=()=>{F.street=F.street===li.dataset.k?'':li.dataset.k;render()});
+  $('#r-ward').querySelectorAll('li').forEach(li=>li.onclick=()=>{F.ward=F.ward===li.dataset.k?'':li.dataset.k;render()});
 
   // ---- lưới giờ x thứ: số đơn bị bỏ lỡ tuyệt đối ----
   const gac=Array.from({length:8},()=>new Array(24).fill(0));
