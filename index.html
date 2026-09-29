@@ -966,10 +966,19 @@ function render(){
   // ---- canh bản đồ, chừa chỗ cho 2 khung nổi ----
   const key=F.ward+'|'+F.street;
   if(render.geoKey!==key){render.geoKey=key;
-    const pts=rows.map(r=>{try{return h3.cellToLatLng(r.s[IHX])}catch(e){return null}}).filter(Boolean);
+    // Mới vào (chưa lọc): canh vào vùng lõi chứa ~80% số đơn, bỏ các ô lẻ ở xa để bản đồ gần hơn.
+    // Có lọc phường/đường: canh đủ mọi ô của bộ lọc.
+    const pts=[];
+    for(const r of rows){try{const [la,ln]=h3.cellToLatLng(r.s[IHX]);pts.push({la,ln,w:r.n||1})}catch(e){}}
+    const q=(arr,k,p)=>{const a=[...arr].sort((x,y)=>x[k]-y[k]);const tot=a.reduce((s,x)=>s+x.w,0);let c=0;for(const x of a){c+=x.w;if(c>=tot*p)return x[k]}return a[a.length-1][k]};
+    const core=!F.ward&&!F.street&&pts.length>20;
+    const lo=core?.1:0, hi=core?.9:1;
     const top=($('#panel').offsetHeight||0)+16, bot=($('#hours').offsetHeight||0)+30;
     const side=isSmall()?10:($('#panel').offsetWidth||0)+24;
-    if(pts.length) map.fitBounds(L.latLngBounds(pts).pad(.08),{maxZoom:15,paddingTopLeft:[isSmall()?10:side,top],paddingBottomRight:[10,isSmall()?bot:10]});
+    if(pts.length){
+      const b=L.latLngBounds([[q(pts,'la',lo),q(pts,'ln',lo)],[q(pts,'la',hi),q(pts,'ln',hi)]]);
+      map.fitBounds(b.pad(.08),{maxZoom:15,paddingTopLeft:[isSmall()?10:side,top],paddingBottomRight:[10,isSmall()?bot:10]});
+    }
   }
 
   // ---- theo giờ trong ngày ----
