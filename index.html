@@ -820,7 +820,7 @@ section.block h2 span{font-weight:400;color:var(--ink-3)}
           <div class="hbars-x"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span></div>
         </section>
         <section class="block">
-          <h2>Cửa hàng thiếu xế nhất <span>· bấm để tới</span></h2>
+          <h2>Ô hex thiếu xế nhất <span>· bấm để tới</span></h2>
           <ol class="rank" id="r-store"></ol>
         </section>
         <section class="block">
@@ -1006,19 +1006,23 @@ function render(){
 
   // lưới hex = số đơn bị bỏ lỡ, cộng theo mã hex của cửa hàng
   heat.clearLayers();
-  if(showHeat && IHX>=0){
-    const hexAgg=new Map();
+  const hexAgg=new Map();
+  if(IHX>=0){
     for(const r of rows){const k=r.s[IHX]; if(!k) continue;
-      let a=hexAgg.get(k); if(!a){a={ac:0,hac:new Array(24).fill(0),w:new Map()};hexAgg.set(k,a)}
-      a.ac+=r.ac; for(let h=0;h<24;h++) a.hac[h]+=r.hac[h]; a.w.set(r.s[IW],(a.w.get(r.s[IW])||0)+1);}
+      let a=hexAgg.get(k); if(!a){a={ac:0,hac:new Array(24).fill(0),w:new Map(),st:new Map()};hexAgg.set(k,a)}
+      a.ac+=r.ac; for(let h=0;h<24;h++) a.hac[h]+=r.hac[h];
+      a.w.set(r.s[IW],(a.w.get(r.s[IW])||0)+r.n);
+      if(r.s[IST]) a.st.set(r.s[IST],(a.st.get(r.s[IST])||0)+r.n);}
     const lmax=Math.log1p(Math.max(1,...[...hexAgg.values()].map(a=>a.ac)));
     for(const [k,a] of hexAgg){
+      a.t=a.ac?Math.log1p(a.ac)/lmax:0; a.col=rampColor(a.t);
+      a.ward=[...a.w].sort((x,y)=>y[1]-x[1])[0]?.[0]||'—';
+      a.streets=[...a.st].sort((x,y)=>y[1]-x[1]).slice(0,2).map(x=>x[0]).join(' · ');
+      if(!showHeat) continue;
       let ring; try{ ring=h3.cellToBoundary(k); }catch(e){ continue; }
-      const t=a.ac?Math.log1p(a.ac)/lmax:0, col=rampColor(t);
       const topH=a.hac.map((v,h)=>[v,h]).filter(x=>x[0]>0).sort((x,y)=>y[0]-x[0]).slice(0,3).map(x=>x[1]+'h').join(', ');
-      const ward=[...a.w].sort((x,y)=>y[1]-x[1])[0]?.[0]||'—';
-      L.polygon(ring,{renderer:initMap.hexRenderer,color:col,weight:.6,fillColor:col,fillOpacity:.55}).bindPopup(
-        `<b style="color:${col}">${hexWord(t)}</b><div class="m">${ward}</div><div class="m" style="margin-top:4px">Giờ hay bị bỏ lỡ: ${topH||'—'}</div>`).addTo(heat);
+      L.polygon(ring,{renderer:initMap.hexRenderer,color:a.col,weight:.6,fillColor:a.col,fillOpacity:.55}).bindPopup(
+        `<b style="color:${a.col}">${hexWord(a.t)}</b><div class="m">${a.ward}</div>${a.streets?`<div class="m">${a.streets}</div>`:''}<div class="m" style="margin-top:4px">Giờ hay bị bỏ lỡ: ${topH||'—'}</div>`).addTo(heat);
     }
   }
 
@@ -1033,7 +1037,7 @@ function render(){
     const top=r.h.map((v,h)=>[v,h]).sort((a,b)=>b[0]-a[0]).filter(x=>x[0]>0).slice(0,3).map(x=>`${x[1]}h`).join(', ');
     const badge = r.n<5 && r.ac>0 ? `<span class="m">Ít dữ liệu</span>` : `<b style="color:${rateColor(p)}">Mức thiếu xế: ${rateWord(p)}</b>`;
     const m=L.circleMarker([s[ILAT],s[ILNG]],{radius:rad,color:'#fff',weight:1.5,fillColor:col,fillOpacity:.88}).bindPopup(
-      `<b>${s[idx('sl')]}</b><div class="m">${s[IW]}</div><div style="margin-top:6px">${badge}</div><div class="m">Giờ hay đông: ${top||'—'}</div>`);
+      `<b>${s[IW]}</b>${s[IST]?`<div class="m">${s[IST]}</div>`:''}<div style="margin-top:6px">${badge}</div><div class="m">Giờ hay đông: ${top||'—'}</div>`);
     if(showStore) storeLayer.addLayer(m);
   });
 
@@ -1043,9 +1047,10 @@ function render(){
   const badgeOf=(a)=>{const p=pct(a.ac,a.n);return `<span class="lvl" style="background:${rateBg(p)};color:${rateColor(p)}">${rateWord(p)}</span>`};
   const minN=5;
   const bigEnough=rows.filter(r=>r.n>=minN);
-  const storeSrc=(bigEnough.length?bigEnough:rows).sort((a,b)=>pct(b.ac,b.n)-pct(a.ac,a.n));
-  $('#r-store').innerHTML=storeSrc.slice(0,5).map(r=>`<li data-lat="${r.s[ILAT]}" data-lng="${r.s[ILNG]}"><div><div class="name">${r.s[idx('sl')]}</div><div class="sub">${r.s[IW]}</div></div>${badgeOf(r)}</li>`).join('');
-  $('#r-store').querySelectorAll('li').forEach(li=>li.onclick=()=>map.flyTo([+li.dataset.lat,+li.dataset.lng],16));
+  // ô hex thiếu xế nhất: xếp theo số đơn bị bỏ lỡ (cùng thước đo với màu hex)
+  const hexSrc=[...hexAgg].filter(([,a])=>a.ac>0).sort((x,y)=>y[1].ac-x[1].ac);
+  $('#r-store').innerHTML=hexSrc.slice(0,5).map(([k,a])=>`<li data-k="${k}"><div><div class="name">${a.ward}</div><div class="sub">${a.streets||'&nbsp;'}</div></div><span class="lvl" style="background:color-mix(in srgb, ${a.col} 15%, transparent);color:${a.col}">${hexWord(a.t)}</span></li>`).join('');
+  $('#r-store').querySelectorAll('li').forEach(li=>li.onclick=()=>{try{map.flyTo(h3.cellToLatLng(li.dataset.k),15)}catch(e){}});
 
   const wardAgg=new Map();
   for(const r of rows){const k=r.s[IW];let a=wardAgg.get(k);if(!a){a={n:0,ac:0};wardAgg.set(k,a)}a.n+=r.n;a.ac+=r.ac}
@@ -1082,11 +1087,10 @@ function render(){
   if(!rows.length){v.innerHTML='<p>Chưa có dữ liệu cho khu vực này.</p>';}
   else{
     let best=[0,0];for(let h=0;h<23;h++){const s=hac[h]+hac[h+1];if(s>best[1])best=[h,s]}
-    const bestStore=storeSrc[0];
     const bestWard=wardSrc[0];
     const overallP=pct(totalAc,totalOrders);
     v.innerHTML=`<div class="n">Mức thiếu xế chung: <b style="color:${rateColor(overallP)}">${rateWord(overallP)}</b></div>
-    <p>Nên đứng quanh <b>${bestWard?.[0]||'—'}</b> — gần <b>${bestStore?.s[idx('sl')]||'—'}</b> — trong khung <b>${best[0]}h–${best[0]+2}h</b>.</p>`;
+    <p>Nên đứng quanh <b>${bestWard?.[0]||'—'}</b> trong khung <b>${best[0]}h–${best[0]+2}h</b>.</p>`;
   }
 }
 
