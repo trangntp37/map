@@ -762,7 +762,7 @@ button,select{font:inherit;color:inherit}
     <div class="p-head">
       <span class="dot"></span>
       <h1 id="title">Bản đồ đơn khu vực</h1>
-      <button class="btn" id="switch-prov">Đổi</button>
+      <button class="btn" id="switch-prov">Đổi tỉnh</button>
       <button class="btn icon" id="t-panel" aria-label="Thu gọn / mở rộng">▴</button>
     </div>
     <div class="p-body">
@@ -819,12 +819,14 @@ const $=s=>document.querySelector(s);
 // Tên tỉnh hiển thị đúng theo cách địa chỉ trong hệ thống đang ghi (tên trước sáp nhập 2025,
 // vì dữ liệu định vị nội bộ hiện vẫn dùng tên này). Sửa lại tại đây nếu công ty đổi cách hiển thị.
 const PROVINCE_NAME = {
-  BDG:'Bình Dương', DNI:'Đồng Nai', DAD:'Thành phố Đà Nẵng', HPH:'Thành phố Hải Phòng',
-  CXR:'Khánh Hòa', VCA:'Thành phố Cần Thơ', DLI:'Thành phố Đà Lạt', VII:'Thành phố Vinh',
-  BMV:'Buôn Mê Thuột', VCS:'Bà Rịa - Vũng Tàu', HUI:'Thành phố Huế', BNH:'Bắc Ninh',
-  LAN:'Long An', PXU:'Gia Lai', THD:'Thanh Hóa', PHH:'Bình Thuận',
-  VDO:'Quảng Ninh', TGG:'Tiền Giang'
+  BDG:'Bình Dương', DNI:'Đồng Nai', DAD:'Đà Nẵng', HPH:'Hải Phòng',
+  CXR:'Nha Trang', VCA:'Cần Thơ', DLI:'Đà Lạt', VII:'Vinh',
+  BMV:'Buôn Mê Thuột', VCS:'Bà Rịa - Vũng Tàu', HUI:'Huế', BNH:'Bắc Ninh',
+  LAN:'Long An', PXU:'Gia Lai', THD:'Thanh Hóa', PHH:'Phan Thiết',
+  VDO:'Hạ Long'
 };
+// Tỉnh không hiển thị trên trang (dữ liệu vẫn có trong data.json)
+const HIDDEN_PROV = new Set(['TGG']);
 
 let payload = RAW;
 if(DATA_URL){ try{ const r=await fetch(DATA_URL,{cache:'no-cache'}); if(!r.ok) throw new Error('HTTP '+r.status); payload=await r.json(); }catch(e){ console.warn('Không tải được DATA_URL, dùng dữ liệu nhúng',e); } }
@@ -850,7 +852,7 @@ const hexWord=t=>t===0?'Đủ xế':t<.34?'Thiếu ít':t<.67?'Thiếu vừa':'T
 // ---- gate: chọn tỉnh ----
 const volByProv = new Map();
 for(const c of CELLS){ const s=STORES[c[0]]; volByProv.set(s[IC], (volByProv.get(s[IC])||0)+c[3]); }
-const provList=[...new Set(STORES.map(s=>s[IC]))].sort((a,b)=>(volByProv.get(b)||0)-(volByProv.get(a)||0));
+const provList=[...new Set(STORES.map(s=>s[IC]))].filter(c=>!HIDDEN_PROV.has(c)).sort((a,b)=>(volByProv.get(b)||0)-(volByProv.get(a)||0));
 if(provList.length===0){
   $('#glist').innerHTML = '<p style="grid-column:1/-1;color:var(--ink-3);font-size:13.5px;line-height:1.6">Không tải được dữ liệu. Kiểm tra kết nối mạng rồi thử lại.<br>Trang này cần mở qua đường link web (bắt đầu bằng https://), không mở trực tiếp bằng cách bấm vào file trên máy hoặc xem trong ứng dụng chat.</p><button onclick="location.reload()" style="grid-column:1/-1;justify-self:center;text-align:center">Thử lại</button>';
   $('#gsearch').style.display='none';
